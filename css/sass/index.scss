@@ -10,6 +10,17 @@ html {
  	font-size: 120%;
 }
 
+@media (max-width: 600px) {
+  html {
+ 	font-size: 80%;
+  }
+}
+@media (min-width: 601px) {
+  html {
+ 	font-size: 120%;
+  }
+}
+
 h1  {
 	font-weight : normal;
 	font-size : 200%;
