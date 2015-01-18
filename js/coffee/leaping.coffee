@@ -168,7 +168,7 @@ moveFrame = () ->
 	frameCount++
 	pageFrameCount++
 	for elem in speedElems
-		count = (pageFrameCount-PAGE_DELAY)*parseInt(elem.getAttribute "lp-speed")*0.01
+		count = (pageFrameCount-PAGE_DELAY)*parseInt(elem.getAttribute "lp-speed")*0.02
 		elem.textContent = (elem.getAttribute "lp-text").substring(0,count)
 	if pageFrameCount < PAGE_DELAY/2
 		maxTime = PAGE_DELAY/2
