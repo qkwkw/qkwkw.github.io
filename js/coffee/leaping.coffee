@@ -4,7 +4,7 @@
 # Released under the MIT license
 # 
 
-PAGE_DELAY = 180
+PAGE_DELAY = 60
 
 # Polyfills for AnimationFrame API
 nextFrame = 
