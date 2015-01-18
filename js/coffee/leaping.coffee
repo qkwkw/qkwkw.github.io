@@ -14,6 +14,14 @@ nextFrame =
 # window.webkitRequestAnimationFrame ||
 (fn) -> setTimeout fn,1000/60
 
+
+# chacking mobile or not
+isMobile = (navigator.userAgent.indexOf('iPhone') > 0 &&
+navigator.userAgent.indexOf('iPad') == -1) ||
+navigator.userAgent.indexOf('iPod') > 0 ||
+navigator.userAgent.indexOf('Android') > 0
+
+
 # Set default CSS Values
 setDefaultCSS = () ->
 	style = document.createElement "style"
@@ -205,6 +213,8 @@ getSpeedElement = (elem) ->
 
 # change video tag's playing state
 switchVideoState = () ->
+	if isMobile
+		return
 	if before 
 		video = before.querySelector "video"
 		if video
