@@ -92,7 +92,7 @@ moveProgressView = () ->
 	imageList = []
 	allElems = document.getElementsByTagName "*"
 	for image in images
-		imageList.push image.getAttribute "src"
+		imageList.push (image.getAttribute "src")
 	for elem in allElems
 		convertParams elem
 		bg = elem.getAttribute "lp-bg"
@@ -104,7 +104,7 @@ moveProgressView = () ->
 		img.onload = () ->
 			cnt++
 			percent.textContent = parseInt((cnt*100)/imageList.length)
-			if images.length <= cnt
+			if imageList.length <= cnt
 				fadeOut loadView
 				showFirstSection()
 		img.onerror = () ->
