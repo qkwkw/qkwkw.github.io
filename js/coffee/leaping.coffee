@@ -180,7 +180,7 @@ moveFrame = () ->
 		elem.textContent = (elem.getAttribute "lp-text").substring(0,count)
 	if pageFrameCount < PAGE_DELAY/2
 		maxTime = PAGE_DELAY/2
-		before.style.transform = "scale("+(2.0+Math.cos(Math.PI/(1.0+(pageFrameCount/maxTime))))+")"
+		before.style.transform = "scale("+(1.5+0.5*Math.cos(Math.PI/(1.0+(pageFrameCount/maxTime))))+")"
 		before.style.opacity = ((maxTime-pageFrameCount)/(maxTime*1.0))
 	else if pageFrameCount <= PAGE_DELAY
 		if before
@@ -188,7 +188,7 @@ moveFrame = () ->
 		maxTime = PAGE_DELAY/2
 		currentFrame = pageFrameCount-maxTime
 		after.style.display = "block"
-		after.style.transform = "scale("+(Math.sin(Math.PI/(1.0+(currentFrame/maxTime))))+")"
+		after.style.transform = "scale("+(0.5+0.5*Math.sin(Math.PI/(1.0+(currentFrame/maxTime))))+")"
 		after.style.opacity = 1.0-((maxTime-currentFrame)/(maxTime*1.0))
 	nextFrame moveFrame
 	return
