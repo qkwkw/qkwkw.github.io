@@ -1,5 +1,5 @@
 (function() {
-  var PAGE_DELAY, after, before, convertParams, delayInit, fadeOut, frameCount, getSpeedElement, goBackToLastSection, gotoNextSection, gotoTargetId, init, isMobile, maxPageCount, moveFrame, moveProgressView, nextFrame, pageCount, pageFrameCount, sections, setCSS, setDefaultCSS, showFirstSection, showLoadView, speedElems, switchVideoState;
+  var PAGE_DELAY, after, before, convertParams, delayInit, fadeOut, frameCount, getSpeedElement, goBackToLastSection, gotoNextSection, gotoTargetId, isMobile, maxPageCount, moveFrame, moveProgressView, nextFrame, pageCount, pageFrameCount, popEvent, sections, setCSS, setDefaultCSS, showFirstSection, showLoadView, spaPush, speedElems, start, switchPage, switchVideoState;
 
   PAGE_DELAY = 60;
 
@@ -8,6 +8,24 @@
   };
 
   isMobile = (navigator.userAgent.indexOf('iPhone') > 0 && navigator.userAgent.indexOf('iPad') === -1) || navigator.userAgent.indexOf('iPod') > 0 || navigator.userAgent.indexOf('Android') > 0;
+
+  spaPush = false;
+
+  frameCount = 0;
+
+  pageFrameCount = 0;
+
+  speedElems = [];
+
+  sections = [];
+
+  pageCount = 0;
+
+  maxPageCount = 0;
+
+  after = null;
+
+  before = null;
 
   setDefaultCSS = function() {
     var style;
@@ -117,12 +135,6 @@
     }
   };
 
-  frameCount = 0;
-
-  pageFrameCount = 0;
-
-  speedElems = [];
-
   moveFrame = function() {
     var count, currentFrame, elem, maxTime, text, _i, _len;
     frameCount++;
@@ -151,16 +163,6 @@
     }
     nextFrame(moveFrame);
   };
-
-  sections = [];
-
-  pageCount = 0;
-
-  maxPageCount = 0;
-
-  after = null;
-
-  before = null;
 
   getSpeedElement = function(elem) {
     var d, elems, list, speed, _i, _len;
@@ -196,6 +198,7 @@
   };
 
   showFirstSection = function() {
+    var afterId;
     pageFrameCount = PAGE_DELAY / 2;
     pageCount = 0;
     sections = document.querySelectorAll("section");
@@ -205,9 +208,16 @@
     after.style.display = "block";
     moveFrame();
     switchVideoState();
+    afterId = after.getAttribute("id");
+    if (spaPush && afterId) {
+      history.pushState({
+        id: afterId
+      }, null, "#" + afterId);
+    }
   };
 
   gotoNextSection = function() {
+    var afterId;
     pageFrameCount = 0;
     before = sections[pageCount];
     pageCount++;
@@ -217,9 +227,11 @@
     after = sections[pageCount];
     speedElems = getSpeedElement(after);
     switchVideoState();
+    afterId = after.getAttribute("id");
   };
 
   goBackToLastSection = function() {
+    var afterId;
     pageFrameCount = 0;
     before = sections[pageCount];
     pageCount--;
@@ -229,14 +241,25 @@
     after = sections[pageCount];
     speedElems = getSpeedElement(after);
     switchVideoState();
+    afterId = after.getAttribute("id");
   };
 
   gotoTargetId = function() {
-    var lst;
-    pageFrameCount = 0;
+    var afterId, lst;
     lst = (this.getAttribute("lp-touch")).split(":");
+    afterId = lst[1];
+    switchPage(afterId);
+    if (spaPush) {
+      history.pushState({
+        id: afterId
+      }, null, "#" + afterId);
+    }
+  };
+
+  switchPage = function(afterId) {
     before = after;
-    after = document.querySelector("#" + lst[1]);
+    after = document.querySelector("#" + afterId);
+    pageFrameCount = 0;
     speedElems = getSpeedElement(after);
     switchVideoState();
   };
@@ -249,17 +272,28 @@
     }
   };
 
-  init = function() {
-    setDefaultCSS();
-  };
-
   delayInit = function() {
+    if (document.querySelector("body").getAttribute("lp-push") && window.history.pushState) {
+      spaPush = true;
+      window.addEventListener('popstate', popEvent);
+    }
     showLoadView();
-    moveProgressView();
+    setTimeout(moveProgressView, 0);
   };
 
-  init();
+  popEvent = function(evt) {
+    var state;
+    state = evt.state;
+    if (state.id) {
+      switchPage(state.id);
+    }
+  };
 
-  document.addEventListener("DOMContentLoaded", delayInit);
+  start = function() {
+    setDefaultCSS();
+    document.addEventListener("DOMContentLoaded", delayInit);
+  };
+
+  start();
 
 }).call(this);

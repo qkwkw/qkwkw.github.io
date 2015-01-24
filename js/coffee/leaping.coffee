@@ -4,9 +4,12 @@
 # Released under the MIT license
 # 
 
+# The virtual page swithing time (frame time)
 PAGE_DELAY = 60
 
+
 # Polyfills for AnimationFrame API
+# ## DO NOT enable real API for resolving perf problem. ##
 nextFrame = 
 # window.requestAnimationFrame || 
 # window.mozRequestAnimationFrame || 
@@ -14,14 +17,41 @@ nextFrame =
 # window.webkitRequestAnimationFrame ||
 (fn) -> setTimeout fn,1000/60
 
-
-# chacking mobile or not
+# The user-agent is working on mobile or not
 isMobile = (navigator.userAgent.indexOf('iPhone') > 0 &&
 navigator.userAgent.indexOf('iPad') == -1) ||
 navigator.userAgent.indexOf('iPod') > 0 ||
 navigator.userAgent.indexOf('Android') > 0
 
+# use pushState or not for Single-page Applicaito
+spaPush = false;
 
+# frame count until this web page started
+frameCount = 0
+
+# frame count until the virtual page started
+pageFrameCount = 0
+
+# mutated visual state elements on the virtual pages
+speedElems = []
+
+# cached section elements.
+sections = []
+
+# Current page Number( ONLY using lp-touch="back"/"next", it working.)
+pageCount = 0
+
+# Max page counts.
+maxPageCount = 0
+
+# Next section element, when switching virtual page.
+after = null
+
+# Last section element, when switching virtual page.
+before = null
+
+
+#######################################
 # Set default CSS Values
 setDefaultCSS = () ->
 	style = document.createElement "style"
@@ -82,6 +112,8 @@ setDefaultCSS = () ->
 	(document.querySelector "head").appendChild style
 	return
 
+
+#######################################
 # Show Loading View.
 showLoadView = () ->
 	nowLoading = document.createElement "div"
@@ -92,6 +124,8 @@ showLoadView = () ->
 	(document.querySelector "body").appendChild nowLoading
 	return
 
+
+#######################################
 # Move Loading View.(Actially show the progress for loading resources.)
 moveProgressView = () ->
 	images = document.querySelectorAll "img"
@@ -121,6 +155,8 @@ moveProgressView = () ->
 
 	return
 
+
+#######################################
 # Fade out the element
 fadeOut = (elem) ->
 	beginFrame = 0
@@ -136,6 +172,8 @@ fadeOut = (elem) ->
 	timer = setInterval work, 1000/60
 	return
 
+
+#######################################
 # Convert lp-* params and set Data
 convertParams = (elem) ->
 	classStr = elem.getAttribute "class"
@@ -166,11 +204,8 @@ convertParams = (elem) ->
 				elem.addEventListener "click",gotoTargetId
 	return
 
-# frame count until this page started
-frameCount = 0
-pageFrameCount = 0
-speedElems = []
 
+#######################################
 # Move for frame
 moveFrame = () ->
 	frameCount++
@@ -196,13 +231,7 @@ moveFrame = () ->
 	return
 
 
-# cached section elements.
-sections = []
-pageCount = 0
-maxPageCount = 0
-after = null
-before = null
-
+#######################################
 # Get the elements which have lp-speed attribute
 getSpeedElement = (elem) ->
 	list = []
@@ -213,6 +242,8 @@ getSpeedElement = (elem) ->
 			list.push d
 	return list
 
+
+#######################################
 # change video tag's playing state
 switchVideoState = () ->
 	if isMobile
@@ -228,6 +259,7 @@ switchVideoState = () ->
 	return
 
 
+#######################################
 # Show first <section>
 showFirstSection = () ->
 	pageFrameCount = PAGE_DELAY/2
@@ -239,8 +271,13 @@ showFirstSection = () ->
 	after.style.display = "block"
 	moveFrame()
 	switchVideoState()
+	afterId = after.getAttribute "id"
+	if spaPush && afterId
+		history.pushState({id:afterId}, null, "#"+afterId);
 	return
 
+
+#######################################
 # Go to next <section>
 gotoNextSection = () ->
 	pageFrameCount = 0
@@ -251,8 +288,11 @@ gotoNextSection = () ->
 	after = sections[pageCount]
 	speedElems = getSpeedElement after
 	switchVideoState()
+
+	afterId = after.getAttribute "id"
 	return
 
+#######################################
 # Go back to last <section>
 goBackToLastSection = () ->
 	pageFrameCount = 0
@@ -263,33 +303,70 @@ goBackToLastSection = () ->
 	after = sections[pageCount]
 	speedElems = getSpeedElement after
 	switchVideoState()
+	afterId = after.getAttribute "id"
 	return
 
+
+#######################################
 # Go to target <section> by id
 gotoTargetId = () ->
-	pageFrameCount = 0
 	lst = (this.getAttribute "lp-touch").split(":")
+	afterId = lst[1]
+	switchPage afterId
+	if spaPush
+		history.pushState({id:afterId}, null, "#"+afterId);	
+	return
+
+
+#######################################
+# Switch Page by Element ID
+switchPage = (afterId) ->
 	before = after
-	after = document.querySelector("#"+lst[1])
+	after = document.querySelector "#"+afterId
+
+	pageFrameCount = 0
 	speedElems = getSpeedElement after
 	switchVideoState()
 	return
 
+
+#######################################
 # set styles for each elements.
 setCSS = (elems,styleName,value) ->
 	for elem in elems
 		elem.style[styleName] = value
 	return
 
-# execute this program.
-init = () ->
-	setDefaultCSS();
-	return
+
+#######################################
+# Initialize before all of the elements are loaded.
 delayInit = () ->
+	if document.querySelector("body").getAttribute("lp-push") && window.history.pushState
+		spaPush = true
+		window.addEventListener 'popstate', popEvent
 	showLoadView()
-	moveProgressView()
+	setTimeout moveProgressView,0
 	return
 
-init()
-document.addEventListener "DOMContentLoaded", delayInit
 
+#######################################
+# for popState events.
+popEvent = (evt) ->
+	state = evt.state
+	if state.id
+		switchPage state.id
+	return
+
+
+#######################################
+# execute this program.
+start = () ->
+	setDefaultCSS();
+	document.addEventListener "DOMContentLoaded", delayInit
+	return
+
+
+#######################################
+#######################################
+# appending to start programs.
+start()
