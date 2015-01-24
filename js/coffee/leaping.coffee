@@ -177,7 +177,9 @@ moveFrame = () ->
 	pageFrameCount++
 	for elem in speedElems
 		count = (pageFrameCount-PAGE_DELAY)*parseInt(elem.getAttribute "lp-speed")*0.02
-		elem.textContent = (elem.getAttribute "lp-text").substring(0,count)
+		text = elem.getAttribute "lp-text"
+		if count <= text.length+1
+			elem.textContent = text.substring(0,count)
 	if pageFrameCount < PAGE_DELAY/2
 		maxTime = PAGE_DELAY/2
 		before.style.transform = "scale("+(1.5+0.5*Math.cos(Math.PI/(1.0+(pageFrameCount/maxTime))))+")"

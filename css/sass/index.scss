@@ -1,13 +1,12 @@
 
 @font-face {
-	font-family: 'cinecaption';
-	src: url('../font/cinecaption.woff') format('woff'),
-		url('../font/cinecaption.ttf') format('truetype');
+  font-family: 'cinecaption';
+  src: url("font/cinecaption.woff") format("woff"),url("font/cinecaption.ttf") format("ttf");
 }
 html {
+	font-family: 'cinecaption', meiryo, sans-serif;
 	text-shadow : 0px 0px 10px black, 0px 0px 5px black, 0px 0px 3px black;
- 	font-family: 'cinecaption', sans-serif;
- 	font-size: 120%;
+ 	font-size: 100%;
 }
 
 @media (max-width: 600px) {
@@ -17,7 +16,7 @@ html {
 }
 @media (min-width: 601px) {
   html {
- 	font-size: 120%;
+ 	font-size: 100%;
   }
 }
 
@@ -28,6 +27,7 @@ h1  {
 p {
 	margin : 0 10px;
 	margin-bottom : 10px;
+	line-height : 100%;
 }
 
 a {

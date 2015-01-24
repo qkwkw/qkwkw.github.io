@@ -92,8 +92,10 @@ var backgroundImages = [
 
 (function() {
 
+  var slides = [];
   var head = document.querySelector("head");
   var body = null; // あとでセットする
+  var sections = null; // あとでセットする
   var canvas = document.createElement("canvas");
 
   //////////////////////////
@@ -587,6 +589,15 @@ var backgroundImages = [
   var main = function() {
 
     body = document.querySelector("body");
+    sections = document.querySelectorAll("section");
+    for( var i=0,length=sections.length; i<length ; i++ ) {
+      var section = sections[i];
+      slides[i] = {
+        x : parseFloat(section.getAttribute("wg-x")),
+        z : parseFloat(section.getAttribute("wg-z")),
+        imgUrl : section.getAttribute("wg-img")
+      };
+    }
 
     // 描画領域のサイズを定義
     resizeWindow();

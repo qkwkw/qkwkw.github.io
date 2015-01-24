@@ -124,13 +124,16 @@
   speedElems = [];
 
   moveFrame = function() {
-    var count, currentFrame, elem, maxTime, _i, _len;
+    var count, currentFrame, elem, maxTime, text, _i, _len;
     frameCount++;
     pageFrameCount++;
     for (_i = 0, _len = speedElems.length; _i < _len; _i++) {
       elem = speedElems[_i];
       count = (pageFrameCount - PAGE_DELAY) * parseInt(elem.getAttribute("lp-speed")) * 0.02;
-      elem.textContent = (elem.getAttribute("lp-text")).substring(0, count);
+      text = elem.getAttribute("lp-text");
+      if (count <= text.length + 1) {
+        elem.textContent = text.substring(0, count);
+      }
     }
     if (pageFrameCount < PAGE_DELAY / 2) {
       maxTime = PAGE_DELAY / 2;
