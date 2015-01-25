@@ -21,63 +21,6 @@ var mvMatrixStack;
 var pMatrix;
 var uViewMatrix;
 
-// スライドの位置
-var slides = [
-   // 横位置   , 奥行き   , イメージURL
-   // 0-50       0-50      例："texture/xxx.jp"
-    { x :   2.0, z : 10.0, imgUrl : "slide/1.png" },
-    { x :   4.0, z : 11.0, imgUrl : "slide/2.png" },
-    { x :   6.0, z : 10.0, imgUrl : "slide/3.png" },
-    { x :   8.0, z : 11.0, imgUrl : "slide/4.png" },
-    { x :  10.0, z : 10.0, imgUrl : "slide/5.png" },
-    { x :  12.0, z : 11.0, imgUrl : "slide/6.png" },
-    { x :  14.0, z : 10.0, imgUrl : "slide/7.png" },
-    { x :  16.0, z : 11.0, imgUrl : "slide/8.png" },
-    { x :  18.0, z : 10.0, imgUrl : "slide/9.png" },
-    { x :  20.0, z : 11.0, imgUrl : "slide/10.png" },
-    { x :  22.0, z : 10.0, imgUrl : "slide/11.png" },
-    { x :  24.0, z : 11.0, imgUrl : "slide/12.png" },
-    { x :  26.0, z : 10.0, imgUrl : "slide/13.png" },
-    { x :  28.0, z : 11.0, imgUrl : "slide/14.png" },
-    { x :  30.0, z : 10.0, imgUrl : "slide/15.png" },
-    { x :  32.0, z : 11.0, imgUrl : "slide/16.png" },
-    { x :  34.0, z : 10.0, imgUrl : "slide/17.png" },
-    { x :  36.0, z : 11.0, imgUrl : "slide/18.png" },
-    { x :  38.0, z : 10.0, imgUrl : "slide/19.png" },
-    { x :  40.0, z : 11.0, imgUrl : "slide/20.png" },
-    { x :  42.0, z : 10.0, imgUrl : "slide/21.png" },
-    { x :  44.0, z : 11.0, imgUrl : "slide/22.png" },
-    { x :  46.0, z : 10.0, imgUrl : "slide/23.png" },
-    { x :  48.0, z : 11.0, imgUrl : "slide/24.png" },
-    { x :   2.0, z : 12.0, imgUrl : "slide/25.png" },
-    { x :   4.0, z : 13.0, imgUrl : "slide/26.png" },
-    { x :   6.0, z : 12.0, imgUrl : "slide/27.png" },
-    { x :   8.0, z : 13.0, imgUrl : "slide/28.png" },
-    { x :  10.0, z : 12.0, imgUrl : "slide/29.png" },
-    { x :  12.0, z : 13.0, imgUrl : "slide/30.png" },
-    { x :  14.0, z : 12.0, imgUrl : "slide/31.png" },
-    { x :  16.0, z : 13.0, imgUrl : "slide/32.png" },
-    { x :  18.0, z : 12.0, imgUrl : "slide/33.png" },
-    { x :  20.0, z : 13.0, imgUrl : "slide/34.png" },
-    { x :  22.0, z : 12.0, imgUrl : "slide/35.png" },
-    { x :  24.0, z : 13.0, imgUrl : "slide/36.png" },
-    { x :  26.0, z : 12.0, imgUrl : "slide/37.png" },
-    { x :  28.0, z : 13.0, imgUrl : "slide/38.png" },
-    { x :  30.0, z : 12.0, imgUrl : "slide/39.png" },
-    { x :  32.0, z : 13.0, imgUrl : "slide/40.png" },
-    { x :  34.0, z : 12.0, imgUrl : "slide/41.png" },
-    { x :  36.0, z : 13.0, imgUrl : "slide/42.png" },
-    { x :  38.0, z : 12.0, imgUrl : "slide/43.png" },
-    { x :  40.0, z : 13.0, imgUrl : "slide/44.png" },
-    { x :  42.0, z : 12.0, imgUrl : "slide/45.png" },
-    { x :  44.0, z : 13.0, imgUrl : "slide/46.png" },
-    { x :  46.0, z : 12.0, imgUrl : "slide/47.png" },
-    { x :  48.0, z : 13.0, imgUrl : "slide/48.png" },
-    { x :   2.0, z : 14.0, imgUrl : "slide/49.png" },
-    { x :   4.0, z : 15.0, imgUrl : "slide/50.png" },
-    { x :   6.0, z : 14.0, imgUrl : "slide/51.png" },
-    { x :   8.0, z : 15.0, imgUrl : "slide/52.png" }
-];
 
 // 背景素材
 var backgroundImages = [
@@ -111,6 +54,9 @@ var backgroundImages = [
         "margin : 0 0;"+
       "}"+
       "h1 {"+
+        "display : none;"+
+      "}"+
+      "section {"+
         "display : none;"+
       "}"+
       "";
@@ -522,9 +468,9 @@ var backgroundImages = [
       var countY = slides[slideCount].y - yPos;
       var countZ = slides[slideCount].z - zPos;
       
-      xPos += countX/4;
-      yPos += countY/4;
-      zPos += countZ/4;
+      xPos += countX/16;
+      yPos += countY/16;
+      zPos += countZ/16;
   };
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -604,7 +550,7 @@ var backgroundImages = [
     
     // ゲームエンジンの起動とゲームループの開始
     var gl = init(canvas);
-    setInterval(function() { gameLoop(gl) }, 1000/60); // 60fps非同期で動かす
+    setInterval(function() { gameLoop(gl) }, 1000/61); // 60fps非同期で動かす
 
     body.appendChild(canvas);
     
