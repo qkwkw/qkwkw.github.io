@@ -1,41 +1,44 @@
 
 "use strict";
-var cvwidth     = 0;
-var cvheight    = 0;
-var vertints     = new Array(50000); // バーテックスバッファ
-var texint;
-var texs         = new Array(1024); // テクスチャバッファ
-var xPos         = 25.50;
-var yPos         = 25.5;
-var zPos         = 60.00;
-var beginX       = 25.00;
-var beginY       = 20.00;
-var beginZ       = 10.00;
-var slideCount   = 0; // 最初のスライドの位置
-
-var MAX_X        = 50;
-var MAX_Z        = 50;
-
-var mvMatrix;
-var mvMatrixStack;
-var pMatrix;
-var uViewMatrix;
-
-
-// 背景素材
-var backgroundImages = [
-    { imgUrl : "texture/grass.jpg" },
-    { imgUrl : "texture/wall.jpg" },
-    { imgUrl : "texture/wood.jpg" },
-    { imgUrl : "texture/fence.jpg" },
-    { imgUrl : "texture/outside.jpg" }
-];
-
-
 
 (function() {
 
+  // 背景素材
+  var backgroundImages = [
+      { imgUrl : "texture/grass.jpg" },
+      { imgUrl : "texture/wall.jpg" },
+      { imgUrl : "texture/wood.jpg" },
+      { imgUrl : "texture/fence.jpg" },
+      { imgUrl : "texture/outside.jpg" }
+  ];
+
+  var cvwidth     = 0;
+  var cvheight    = 0;
+  var vertints     = new Array(50000); // バーテックスバッファ
+  var texint;
+  var texs         = new Array(1024); // テクスチャバッファ
+  var xPos         = 40.00;
+  var yPos         = 20.00;
+  var zPos         = 10.00;
+  var targetX      = 0;
+  var targetY      = 0;
+  var targetZ      = 0;
+  var beginX       = 25.00;
+  var beginY       = 20.00;
+  var beginZ       = 10.00;
+  var slideCount   = 0; // 最初のスライドの位置
+
+  var MAX_X        = 50;
+  var MAX_Z        = 50;
+
+  var mvMatrix;
+  var mvMatrixStack;
+  var pMatrix;
+  var uViewMatrix;
+
   var slides = [];
+
+
   var head = document.querySelector("head");
   var body = null; // あとでセットする
   var sections = null; // あとでセットする
@@ -88,6 +91,8 @@ var backgroundImages = [
       "}\n"+
     "";
 
+
+  var controlFrame = function(fn) { setTimeout(fn,1000/60); };
 
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,34 +155,38 @@ var backgroundImages = [
     // 　今度はその装置に流しこむデータを指定する。
     
     // スライドの画像と場所をセット
-    loadTexture( gl, 1000, backgroundImages[2] );
+    loadTexture( gl, 1000, backgroundImages[1] );
     for( var i=0 ; i<slides.length ; i++ ) {
-        slides[i].y            = 0.0+(MAX_Z-slides[i].z)*0.6;
-        
-        slides[i].rightTopX    = (+1.0); slides[i].rightTopY    = (+1.0); slides[i].rightTopZ    = (+0.0);
-        slides[i].leftTopX     = (-0.0); slides[i].leftTopY     = (+1.0); slides[i].leftTopZ     = (+0.0);
-        slides[i].rightBottomX = (+1.0); slides[i].rightBottomY = (-0.0); slides[i].rightBottomZ = (+0.0);
-        slides[i].leftBottomX  = (-0.0); slides[i].leftBottomY  = (-0.0); slides[i].leftBottomZ  = (+0.0);
+        slides[i].rightTopX    = (+1.0); slides[i].rightTopY    = (+1.0); slides[i].rightTopZ    = (-0.70);
+        slides[i].leftTopX     = (-0.0); slides[i].leftTopY     = (+1.0); slides[i].leftTopZ     = (-0.70);
+        slides[i].rightBottomX = (+1.0); slides[i].rightBottomY = (-0.0); slides[i].rightBottomZ = (-0.70);
+        slides[i].leftBottomX  = (-0.0); slides[i].leftBottomY  = (-0.0); slides[i].leftBottomZ  = (-0.70);
         loadTexture( gl, i, slides[i] );
         loadPoli( gl, i, slides[i] );
 
-        slides[i].rightTopX    = (+0.0); slides[i].rightTopY    = (+1.0); slides[i].rightTopZ    = (+0.0);
-        slides[i].leftTopX     = (-0.0); slides[i].leftTopY     = (+1.0); slides[i].leftTopZ     = (-0.3);
-        slides[i].rightBottomX = (+0.0); slides[i].rightBottomY = (-0.0); slides[i].rightBottomZ = (+0.0);
-        slides[i].leftBottomX  = (-0.0); slides[i].leftBottomY  = (-0.0); slides[i].leftBottomZ  = (-0.3);
+        slides[i].rightTopX    = (+0.0); slides[i].rightTopY    = (+1.0); slides[i].rightTopZ    = (-0.70);
+        slides[i].leftTopX     = (-0.0); slides[i].leftTopY     = (+1.0); slides[i].leftTopZ     = (-1.00);
+        slides[i].rightBottomX = (+0.0); slides[i].rightBottomY = (-0.0); slides[i].rightBottomZ = (-0.70);
+        slides[i].leftBottomX  = (-0.0); slides[i].leftBottomY  = (-0.0); slides[i].leftBottomZ  = (-1.00);
         loadPoli( gl, 1000+i, slides[i] );
         
-        slides[i].rightTopX    = (+1.0); slides[i].rightTopY    = (+1.0); slides[i].rightTopZ    = (-0.3);
-        slides[i].leftTopX     = (+1.0); slides[i].leftTopY     = (+1.0); slides[i].leftTopZ     = (-0.0);
-        slides[i].rightBottomX = (+1.0); slides[i].rightBottomY = (-0.0); slides[i].rightBottomZ = (-0.3);
-        slides[i].leftBottomX  = (+1.0); slides[i].leftBottomY  = (-0.0); slides[i].leftBottomZ  = (-0.0);
+        slides[i].rightTopX    = (+1.0); slides[i].rightTopY    = (+1.0); slides[i].rightTopZ    = (-1.00);
+        slides[i].leftTopX     = (+1.0); slides[i].leftTopY     = (+1.0); slides[i].leftTopZ     = (-0.70);
+        slides[i].rightBottomX = (+1.0); slides[i].rightBottomY = (-0.0); slides[i].rightBottomZ = (-1.00);
+        slides[i].leftBottomX  = (+1.0); slides[i].leftBottomY  = (-0.0); slides[i].leftBottomZ  = (-0.70);
         loadPoli( gl, 2000+i, slides[i] );
 
-        slides[i].rightTopX    = (+1.0); slides[i].rightTopY    = (+1.0); slides[i].rightTopZ    = (-0.3);
-        slides[i].leftTopX     = (+0.0); slides[i].leftTopY     = (+1.0); slides[i].leftTopZ     = (-0.3);
-        slides[i].rightBottomX = (+1.0); slides[i].rightBottomY = (+1.0); slides[i].rightBottomZ = (-0.0);
-        slides[i].leftBottomX  = (+0.0); slides[i].leftBottomY  = (+1.0); slides[i].leftBottomZ  = (-0.0);
+        slides[i].rightTopX    = (+1.0); slides[i].rightTopY    = (+1.0); slides[i].rightTopZ    = (-1.00);
+        slides[i].leftTopX     = (+0.0); slides[i].leftTopY     = (+1.0); slides[i].leftTopZ     = (-1.00);
+        slides[i].rightBottomX = (+1.0); slides[i].rightBottomY = (+1.0); slides[i].rightBottomZ = (-0.70);
+        slides[i].leftBottomX  = (+0.0); slides[i].leftBottomY  = (+1.0); slides[i].leftBottomZ  = (-0.70);
         loadPoli( gl, 3000+i, slides[i] );
+
+        slides[i].rightTopX    = (+1.0); slides[i].rightTopY    = (+0.0); slides[i].rightTopZ    = (-1.00);
+        slides[i].leftTopX     = (+0.0); slides[i].leftTopY     = (+0.0); slides[i].leftTopZ     = (-1.00);
+        slides[i].rightBottomX = (+1.0); slides[i].rightBottomY = (+0.0); slides[i].rightBottomZ = (-0.70);
+        slides[i].leftBottomX  = (+0.0); slides[i].leftBottomY  = (+0.0); slides[i].leftBottomZ  = (-0.70);
+        loadPoli( gl, 4000+i, slides[i] );
     }
     
     // 地面の画像と場所をセット
@@ -185,7 +194,7 @@ var backgroundImages = [
     for( var x=0 ; x<=MAX_X ; x++ ) {
         for( var z=0 ; z<=MAX_Z ; z++ ) {
             backgroundImages[0].x            = x;
-            backgroundImages[0].y            = 0.0+(MAX_Z-z)*0.3;
+            backgroundImages[0].y            = 0.0;
             backgroundImages[0].z            = z;
             backgroundImages[0].rightTopX    = (+1.0); backgroundImages[0].rightTopY    = (+0.0); backgroundImages[0].rightTopZ    = (+1.0);
             backgroundImages[0].leftTopX     = (-0.0); backgroundImages[0].leftTopY     = (+0.0); backgroundImages[0].leftTopZ     = (+1.0);
@@ -197,16 +206,16 @@ var backgroundImages = [
     
     // 壁
     loadTexture( gl, 20000, backgroundImages[1] );
-    for( var x=0 ; x<=MAX_X ; x++ ) {
-        for( var z=0 ; z<=MAX_Z ; z++ ) {
+    for( var x=1 ; x<=MAX_X ; x++ ) {
+        for( var z=0 ; z<=0 ; z++ ) {
             backgroundImages[1].x            = x;
-            backgroundImages[1].y            = 0.0+(MAX_Z-z)*0.3;
-            backgroundImages[1].z            = z;
+            backgroundImages[1].y            = 0.0;
+            backgroundImages[1].z            = 0;
             backgroundImages[1].rightTopX    = (+1);
-            backgroundImages[1].rightTopY    = (+(MAX_Z-z)*0.3);
+            backgroundImages[1].rightTopY    = (+20.0);
             backgroundImages[1].rightTopZ    = (+0.0);
             backgroundImages[1].leftTopX     = (-0.0);
-            backgroundImages[1].leftTopY     = (+(MAX_Z-z)*0.3);
+            backgroundImages[1].leftTopY     = (+20.0);
             backgroundImages[1].leftTopZ     = (+0.0);
             backgroundImages[1].rightBottomX = (+1);
             backgroundImages[1].rightBottomY = (-0.0);
@@ -247,6 +256,8 @@ var backgroundImages = [
     ///////////////////////////////////////////////////////////////////////////////
     // キー入力のイベント初期化
     document.addEventListener( 'keydown', keyOnDown, false );
+    document.addEventListener( 'keyup', keyOnUp, false );
+
     
     return gl; // WebGLへのアクセスインタフェースをリターン
   };
@@ -291,7 +302,7 @@ var backgroundImages = [
   // カメラの制御
   var workCamera = function(gl, canvas) {
     var viewMatrix = lookAt( // 一旦Float型の配列で初期化
-        0.50+xPos, 0.50+0.00+yPos, 1.20+zPos,
+        0.50+xPos, 0.50+0.00+yPos, 0.70+zPos,
         0.50+xPos, 0.50+0.00+yPos, 0.00+zPos,
         0.00     , 1.00+0.00, 0.00
     );
@@ -319,6 +330,20 @@ var backgroundImages = [
       }
       if( event.keyCode == 40 ) {
           keyDown = true;
+      }
+  };
+  var keyOnUp = function ( event ) {
+      if( event.keyCode == 37 ) {
+          keyLeft = false;
+      }
+      if( event.keyCode == 38 ) {
+          keyUp = false;
+      }
+      if( event.keyCode == 39 ) {
+          keyRight = false;
+      }
+      if( event.keyCode == 40 ) {
+          keyDown = false;
       }
   };
 
@@ -447,30 +472,26 @@ var backgroundImages = [
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // 動作処理
   var work = function() {
-      if( keyLeft ) {
-          slideCount = slideCount-1;
-          if( slideCount < 0 ) {
-              slideCount  = slides.length -1;
-          }
-      }
-      if( keyRight ) {
-          slideCount = slideCount+1;
-          if( slides.length <= slideCount ) {
-              slideCount = 0;
-          }
-      }
-      keyLeft  = false;
-      keyRight = false;
-      keyUp    = false;
-      keyDown  = false;
-      
-      var countX = slides[slideCount].x - xPos;
-      var countY = slides[slideCount].y - yPos;
-      var countZ = slides[slideCount].z - zPos;
-      
-      xPos += countX/16;
-      yPos += countY/16;
-      zPos += countZ/16;
+    if( keyLeft ) {
+      targetX   -= 0.04;
+    }
+    if( keyRight ) {
+      targetX   += 0.04;
+    }
+    if( keyUp ) {
+      targetY   += 0.04;
+    }
+    if( keyDown ) {
+      targetY   -= 0.04;
+    }
+    
+    var countX = targetX - xPos;
+    var countY = targetY - yPos;
+    var countZ = targetZ - zPos;
+    
+    xPos += countX/12;
+    yPos += countY/12;
+    zPos += countZ/12;
   };
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -495,14 +516,15 @@ var backgroundImages = [
         renderPoli( gl, vertints[i+1000], texs[1000] );
         renderPoli( gl, vertints[i+2000], texs[1000] );
         renderPoli( gl, vertints[i+3000], texs[1000] );
+        renderPoli( gl, vertints[i+4000], texs[1000] );
     }
 
     // 地面の描画
-    for( var i=10000 ; i<12500 ; i++ ) {
+    for( var i=10001 ; i<12500 ; i++ ) {
         renderPoli( gl, vertints[i], texs[10000] );
     }
     // 壁の描画
-    for( var i=20000 ; i<22500 ; i++ ) {
+    for( var i=20001 ; i<(20000+MAX_X) ; i++ ) {
         renderPoli( gl, vertints[i], texs[20000] );
     }
 
@@ -528,6 +550,7 @@ var backgroundImages = [
   var gameLoop = function(gl) {
       work();
       render(gl);
+      controlFrame(function(){gameLoop(gl);});
   };
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -540,17 +563,22 @@ var backgroundImages = [
       var section = sections[i];
       slides[i] = {
         x : parseFloat(section.getAttribute("wg-x")),
+        y : parseFloat(section.getAttribute("wg-y")),
         z : parseFloat(section.getAttribute("wg-z")),
         imgUrl : section.getAttribute("wg-img")
       };
     }
+
+    targetX = parseInt(body.getAttribute("wb-begin-x"));
+    targetY = parseInt(body.getAttribute("wb-begin-y"));
+    targetZ = parseInt(body.getAttribute("wb-begin-z"));
 
     // 描画領域のサイズを定義
     resizeWindow();
     
     // ゲームエンジンの起動とゲームループの開始
     var gl = init(canvas);
-    setInterval(function() { gameLoop(gl) }, 1000/61); // 60fps非同期で動かす
+    gameLoop(gl);
 
     body.appendChild(canvas);
     

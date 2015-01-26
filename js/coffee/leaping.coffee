@@ -4,12 +4,10 @@
 # Released under the MIT license
 # 
 
-# The virtual page swithing time (frame time)
+# Page switching time
 PAGE_DELAY = 60
 
-
 # Polyfills for AnimationFrame API
-# ## DO NOT enable real API for resolving perf problem. ##
 nextFrame = 
 # window.requestAnimationFrame || 
 # window.mozRequestAnimationFrame || 
@@ -17,11 +15,15 @@ nextFrame =
 # window.webkitRequestAnimationFrame ||
 (fn) -> setTimeout fn,1000/60
 
-# The user-agent is working on mobile or not
+
+# chacking mobile or not
 isMobile = (navigator.userAgent.indexOf('iPhone') > 0 &&
 navigator.userAgent.indexOf('iPad') == -1) ||
 navigator.userAgent.indexOf('iPod') > 0 ||
 navigator.userAgent.indexOf('Android') > 0
+
+# page swiching or not
+isWorking = false
 
 # use pushState or not for Single-page Applicaito
 spaPush = false;
@@ -50,6 +52,8 @@ after = null
 # Last section element, when switching virtual page.
 before = null
 
+# for plugins
+window.LEAPING = { actions : {}, PAGE_CHANGE_TIME : PAGE_DELAY };
 
 #######################################
 # Set default CSS Values
@@ -64,6 +68,9 @@ setDefaultCSS = () ->
 			overflow : hidden;
 			width : 100%;
 			height: 100%;
+		}
+		html {
+			touch-action : none;
 		}
 		section {
 			display : none;
@@ -112,7 +119,6 @@ setDefaultCSS = () ->
 	(document.querySelector "head").appendChild style
 	return
 
-
 #######################################
 # Show Loading View.
 showLoadView = () ->
@@ -123,7 +129,6 @@ showLoadView = () ->
 	"""
 	(document.querySelector "body").appendChild nowLoading
 	return
-
 
 #######################################
 # Move Loading View.(Actially show the progress for loading resources.)
@@ -155,7 +160,6 @@ moveProgressView = () ->
 
 	return
 
-
 #######################################
 # Fade out the element
 fadeOut = (elem) ->
@@ -171,7 +175,6 @@ fadeOut = (elem) ->
 			elem.style.opacity = (maxFrame-beginFrame)/maxFrame
 	timer = setInterval work, 1000/60
 	return
-
 
 #######################################
 # Convert lp-* params and set Data
@@ -204,7 +207,6 @@ convertParams = (elem) ->
 				elem.addEventListener "click",gotoTargetId
 	return
 
-
 #######################################
 # Move for frame
 moveFrame = () ->
@@ -212,24 +214,37 @@ moveFrame = () ->
 	pageFrameCount++
 	for elem in speedElems
 		count = (pageFrameCount-PAGE_DELAY)*parseInt(elem.getAttribute "lp-speed")*0.02
-		text = elem.getAttribute "lp-text"
-		if count <= text.length+1
-			elem.textContent = text.substring(0,count)
-	if pageFrameCount < PAGE_DELAY/2
-		maxTime = PAGE_DELAY/2
-		before.style.transform = "scale("+(1.5+0.5*Math.cos(Math.PI/(1.0+(pageFrameCount/maxTime))))+")"
-		before.style.opacity = ((maxTime-pageFrameCount)/(maxTime*1.0))
-	else if pageFrameCount <= PAGE_DELAY
-		if before
-			before.style.display = "none"
-		maxTime = PAGE_DELAY/2
-		currentFrame = pageFrameCount-maxTime
-		after.style.display = "block"
-		after.style.transform = "scale("+(0.5+0.5*Math.sin(Math.PI/(1.0+(currentFrame/maxTime))))+")"
-		after.style.opacity = 1.0-((maxTime-currentFrame)/(maxTime*1.0))
+		elem.textContent = (elem.getAttribute "lp-text").substring(0,count)
+	if pageFrameCount <= PAGE_DELAY
+		isWorking = true
+		action = null
+		action = after.getAttribute "lp-action"
+		if action
+			if window.LEAPING.actions[action]
+				window.LEAPING.actions[action](before, after, pageFrameCount)
+			else
+				before.style.opacity = 1.0
+				before.style.display = "none"
+				after.style.opacity = 1.0
+				after.style.display = "block"
+				pageFrameCount = PAGE_DELAY
+		else
+			if pageFrameCount < PAGE_DELAY/2
+				maxTime = PAGE_DELAY/2
+				before.style.transform = "scale("+(2.0+Math.cos(Math.PI/(1.0+(pageFrameCount/maxTime))))+")"
+				before.style.opacity = ((maxTime-pageFrameCount)/(maxTime*1.0))
+			else
+				if before
+					before.style.display = "none"
+				maxTime = PAGE_DELAY/2
+				currentFrame = pageFrameCount-maxTime
+				after.style.display = "block"
+				after.style.transform = "scale("+(Math.sin(Math.PI/(1.0+(currentFrame/maxTime))))+")"
+				after.style.opacity = 1.0-((maxTime-currentFrame)/(maxTime*1.0))
+	else
+		isWorking = false
 	nextFrame moveFrame
 	return
-
 
 #######################################
 # Get the elements which have lp-speed attribute
@@ -241,7 +256,6 @@ getSpeedElement = (elem) ->
 		if speed
 			list.push d
 	return list
-
 
 #######################################
 # change video tag's playing state
@@ -258,7 +272,6 @@ switchVideoState = () ->
 			video.play()
 	return
 
-
 #######################################
 # Show first <section>
 showFirstSection = () ->
@@ -271,15 +284,15 @@ showFirstSection = () ->
 	after.style.display = "block"
 	moveFrame()
 	switchVideoState()
-	afterId = after.getAttribute "id"
 	if spaPush && afterId
 		history.pushState({id:afterId}, null, "#"+afterId);
 	return
 
-
 #######################################
 # Go to next <section>
 gotoNextSection = () ->
+	if isWorking
+		return
 	pageFrameCount = 0
 	before = sections[pageCount]
 	pageCount++
@@ -295,6 +308,8 @@ gotoNextSection = () ->
 #######################################
 # Go back to last <section>
 goBackToLastSection = () ->
+	if isWorking
+		return
 	pageFrameCount = 0
 	before = sections[pageCount]
 	pageCount--
@@ -303,20 +318,19 @@ goBackToLastSection = () ->
 	after = sections[pageCount]
 	speedElems = getSpeedElement after
 	switchVideoState()
-	afterId = after.getAttribute "id"
 	return
-
 
 #######################################
 # Go to target <section> by id
 gotoTargetId = () ->
+	if isWorking
+		return
 	lst = (this.getAttribute "lp-touch").split(":")
 	afterId = lst[1]
 	switchPage afterId
 	if spaPush
 		history.pushState({id:afterId}, null, "#"+afterId);	
 	return
-
 
 #######################################
 # Switch Page by Element ID
@@ -345,9 +359,8 @@ delayInit = () ->
 		spaPush = true
 		window.addEventListener 'popstate', popEvent
 	showLoadView()
-	setTimeout moveProgressView,0
+	moveProgressView()
 	return
-
 
 #######################################
 # for popState events.
@@ -360,13 +373,11 @@ popEvent = (evt) ->
 
 #######################################
 # execute this program.
-start = () ->
+init = () ->
 	setDefaultCSS();
-	document.addEventListener "DOMContentLoaded", delayInit
 	return
 
 
-#######################################
-#######################################
-# appending to start programs.
-start()
+init()
+document.addEventListener "DOMContentLoaded", delayInit
+
